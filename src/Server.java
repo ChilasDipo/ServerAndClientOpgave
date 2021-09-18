@@ -21,7 +21,7 @@ public class Server {
      */
     // All client names, so we can check for duplicates upon registration.
     private static Set<String> names = new HashSet<>();
-
+    private static String[] listOfComands = {"/quit", "/help", "/list"};
     // The set of all the print writers for all the clients, used for broadcast.
     private static Set<PrintWriter> writers = new HashSet<>();
 
@@ -41,7 +41,7 @@ public class Server {
      */
     private static class Handler implements Runnable {
         private String name;
-        private Socket socket;
+        private final Socket socket;
         private Scanner in;
         private PrintWriter out;
 
@@ -96,11 +96,18 @@ public class Server {
                     String input = in.nextLine();
                     if (input.toLowerCase().startsWith("/quit")) {
                         return;
+                    } else if (input.toLowerCase().startsWith("/list")){
+                        for (PrintWriter writer : writers) {
+                            writer.println("User " + name + " Exits");
+                        }
+                    } else if (input.toLowerCase().startsWith("/help")){
+                        for (String comands : listOfComands) {
+                            out.println("User " + comands + " Exits");
                     }
-                    for (PrintWriter writer : writers) {
+                    }else {for (PrintWriter writer : writers) {
                         System.out.println("Besked er kommet fra " + name + ": " + input);
                         writer.println("MESSAGE " + name + ": " + input);
-                    }
+                    }}
                 }
             } catch (Exception e) {
                 System.out.println(e);
@@ -118,6 +125,7 @@ public class Server {
                 try {
                     socket.close();
                 } catch (IOException e) {
+                    System.out.println(e);
                 }
             }
         }
